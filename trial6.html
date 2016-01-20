@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>JS Bin</title>
+</head>
+<body>
+  
+<p id="demo"></p>
+
+<button onclick="getLocation()">Locate Me</button>
+
+  <input type="text" id="latitude" placeholder="latitude">
+  <input type="text" id="longitude" placeholder="longitude">
+  <div id="map" style="width:500px; height:500px"></div>
+  
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+  <script>
+	var x = document.getElementById("demo");
+	var latitude,longitude;
+function getLocation() {
+    if (navigator.geolocation) {
+//navigator.geolocation.getCurrentPosition(function(pos){alert(pos.coords.latitude)},function(err){})        
+navigator.geolocation.getCurrentPosition(showPosition, showError);
+    } else {
+        x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+}
+function showPosition(position) {
+	var $latitude = document.getElementById('latitude');
+	var $longitude = document.getElementById('longitude');
+	latitude = position.coords.latitude;
+	longitude = position.coords.longitude;
+	$latitude.value = latitude;
+	$longitude.value = longitude;
+    	var latlon = latitude + "," + longitude;
+
+		var zoom = 13;
+		
+		var LatLng = new google.maps.LatLng(latitude, longitude);
+		
+		var mapOptions = {
+			zoom: zoom,
+			center: LatLng,
+			panControl: false,
+			zoomControl: true,
+			scaleControl: true,
+			mapTypeId: google.maps.MapTypeId.ROADMAP,
+			animation: google.maps.Animation.DROP
+		}	
+		
+		var map = new google.maps.Map(document.getElementById('map'),mapOptions);
+      
+		
+		var marker = new google.maps.Marker({
+			position: LatLng,
+			map: map,
+			title: 'Drag Me!',
+			draggable: true
+		});
+		
+		google.maps.event.addListener(marker, 'dragend', function(marker){
+			var latLng = marker.latLng;
+			$latitude.value = latLng.lat();
+			$longitude.value = latLng.lng();
+
+		});
+
+    //var img_url = "http://maps.googleapis.com/maps/api/staticmap?center="
+    //+latlon+"&zoom=14&size=400x300&sensor=false";
+    //document.getElementById("mapholder").innerHTML = "<img src='"+img_url+"'>";
+}
+
+function showError(error) {
+    switch(error.code) {
+        case error.PERMISSION_DENIED:
+            x.innerHTML = "User denied the request for Geolocation."
+            break;
+        case error.POSITION_UNAVAILABLE:
+            x.innerHTML = "Location information is unavailable."
+            break;
+        case error.TIMEOUT:
+            x.innerHTML = "The request to get user location timed out."
+            break;
+        case error.UNKNOWN_ERROR:
+            x.innerHTML = "An unknown error occurred."
+            break;
+    }
+}
+	//initialize();
+	</script>
+  
+</body>
+</html>
